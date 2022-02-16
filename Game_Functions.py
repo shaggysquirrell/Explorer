@@ -8,6 +8,7 @@ Created on Thu Sep 16 21:58:56 2021
 
 import pygame
 import csv
+import sys
 import os
 
 from chest import Chest
@@ -94,12 +95,14 @@ def check_external_events(ai_set, player, map_1):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
+            sys.exit()
 
 def check_events(ai_set, player, map_1):
     
      for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
+            sys.exit()
     
      key = pygame.key.get_pressed()
                 ###  Moving Left  ###
