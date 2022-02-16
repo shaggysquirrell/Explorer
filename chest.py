@@ -10,12 +10,15 @@ class Chest():
         self.ai_set = ai_set
         self.screen = screen
         
-        self.chest_1 = False
+        self.chest_1 = True
         self.chest_2 = False
-        self.chest_3 = True
+        self.chest_3 = False
         
         self.row =  row
         self.col = col
+        
+        self.open = False
+        self.animation_time = 15
         
         self.screen_rect = self.screen.get_rect()
         
@@ -82,7 +85,36 @@ class Chest():
         self.chest3_rect_four.x, self.chest3_rect_four.y = x+8,y+8
         
     def animate(self):
-        print('True')
+        if self.open:
+            if self.chest_1:
+                self.animation_time -= 1
+                if self.animation_time == 0:
+                    self.animation_time = 15
+                    self.chest_1 = False
+                    self.chest_2 = True
+                    
+            elif self.chest_2:
+                self.animation_time -= 1
+                if self.animation_time == 0:
+                    self.animation_time = 15
+                    self.chest_2 = False
+                    self.chest_3 = True
+                    
+        elif not self.open:
+            if self.chest_3:
+                self.animation_time -= 1
+                if self.animation_time == 0:
+                    self.animation_time = 15
+                    self.chest_3 = False
+                    self.chest_2 = True
+                    
+            elif self.chest_2:
+                self.animation_time -= 1
+                if self.animation_time == 0:
+                    self.animation_time = 15
+                    self.chest_2 = False
+                    self.chest_1 = True
+            
         
     def blitme(self):
         if self.chest_1:
