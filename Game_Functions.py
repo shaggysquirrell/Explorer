@@ -35,7 +35,7 @@ def get_tiles(screen, ai_set, filename, rows, columns):
                   ####################
     
     tiles = []
-    chest_index = 0
+    chest_index = -1
     
     for row in range(rows):
         for col in range(columns):
@@ -46,7 +46,6 @@ def get_tiles(screen, ai_set, filename, rows, columns):
             
             if int(ai_set.tile_values[row][col]) in ai_set.occupied_tiles:
                 occupation = 'Occupied'
-                print('True')
             else:
                 occupation = 'Not Occupied'
                 
@@ -55,13 +54,13 @@ def get_tiles(screen, ai_set, filename, rows, columns):
                 cst = Chest(screen, ai_set, row, col)
                 ai_set.chests.append(cst)
                 
-                chest = chest_index
+                chest = 'Chest'
                 chest_index +=1
                 
             else:
                 chest = 'NONE'
             
-            ai_set.grid[col, row] = {'occupation': occupation, 'grid_location':(col, row), 'screen_location':(x,y), 'chest': chest}
+            ai_set.grid[col, row] = {'occupation': occupation, 'grid_location':(col, row), 'screen_location':(x,y), 'chest': chest, 'chest_index': chest_index}
 
     ai_set.map_tiles = tiles
    ##########################################################
@@ -91,6 +90,13 @@ def init(screen, ai_set):
     ai_set.map_tiles = get_tiles(screen, ai_set, ai_set.map_sheet, 100, 100)
     ai_set.player_frames = get_frames(screen, ai_set, ai_set.player_sheet[0], 3, 4) + get_frames(screen, ai_set, ai_set.player_sheet[1], 3, 4)
 
+def check_chests(ai_set, player, key):
+    if key[pygame.K_LEFT] and ai_set.grid[player.grid_x -1, player.grid_y]['chest'] == 'Chest':
+        chest = ai_set.chests[ai_set.grid[player.grid_x -1, player.grid_y]['chest_index']]
+        chest.open = True
+        
+        
+        
 def check_external_events(ai_set, player, map_1):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -98,13 +104,15 @@ def check_external_events(ai_set, player, map_1):
             sys.exit()
 
 def check_events(ai_set, player, map_1):
-    
      for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
     
      key = pygame.key.get_pressed()
+                 ### Open Chests ###
+     check_chests(ai_set, player, key)
+     
                 ###  Moving Left  ###
      if key[pygame.K_LEFT] and ai_set.grid[player.grid_x -1, player.grid_y]['occupation'] != 'Occupied':             
          if ai_set.key_hold_time == 7:    
