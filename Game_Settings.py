@@ -39,10 +39,10 @@ class Settings():
         self.map_sheet = ('map.png')
         self.object_sheet = ('o.png')
         
-        self.csv_filename = 'map_new_layer2.csv'
-        self.csv_objects = 'objects_csv.png'
+        self.csv_filename = ('map_new_layer2.csv', 'map_new_layer3.csv')
         
-        self.tile_values = []
+        self.layer1_tile_values = []
+        self.layer2_tile_values = []
         self.object_tile_values = []
         
         self.player_start_left = 19
@@ -54,7 +54,7 @@ class Settings():
         
         self.chests = []
         
-        self.occupied_tiles = [2, 682, 684, 761, 760, 683, 722, 723,151,724,191, 152, 192, 203, 204, 205, 605, 604]
+        self.occupied_tiles = [603,602,2,733,731, 682, 684, 761, 760, 683, 722, 723,151,724,191, 152, 192, 203, 204, 205, 605, 604]
         self.chest_tiles = [2]
         
         self.hud_tiles = [462,463,495,496,528,529,530,531,532,561,562]
