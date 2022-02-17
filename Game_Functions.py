@@ -15,7 +15,7 @@ from chest import Chest
 
 def parse_csv(ai_set, csv_filename):
     number_value = []
-    with open(os.path.join(ai_set.csv_filename)) as data:
+    with open(os.path.join(csv_filename)) as data:
         data = csv.reader(data, delimiter= ',')
         for i in data:
             number_value.append(list(i))
@@ -31,7 +31,8 @@ def get_tiles(screen, ai_set, filename, rows, columns):
     img_width = rect.w/columns
     img_height = rect.h/rows
                    ###################
-    ai_set.tile_values = parse_csv(ai_set, ai_set.csv_filename)
+    ai_set.layer1_tile_values = parse_csv(ai_set, ai_set.csv_filename[0])
+    ai_set.layer2_tile_values = parse_csv(ai_set, ai_set.csv_filename[1])
                   ####################
     
     tiles = []
@@ -44,12 +45,12 @@ def get_tiles(screen, ai_set, filename, rows, columns):
             x = screen_rect.centerx + 16 * col
             y = screen_rect.centery + 16 * row
             
-            if int(ai_set.tile_values[row][col]) in ai_set.occupied_tiles:
+            if int(ai_set.layer1_tile_values[row][col]) in ai_set.occupied_tiles or int(ai_set.layer2_tile_values[row][col]) in ai_set.occupied_tiles:
                 occupation = 'Occupied'
             else:
                 occupation = 'Not Occupied'
                 
-            if int(ai_set.tile_values[row][col]) in ai_set.chest_tiles:
+            if int(ai_set.layer1_tile_values[row][col]) in ai_set.chest_tiles:
                 
                 cst = Chest(screen, ai_set, row, col)
                 ai_set.chests.append(cst)
@@ -91,10 +92,41 @@ def init(screen, ai_set):
     ai_set.player_frames = get_frames(screen, ai_set, ai_set.player_sheet[0], 3, 4) + get_frames(screen, ai_set, ai_set.player_sheet[1], 3, 4)
 
 def check_chests(ai_set, player, key):
-    if key[pygame.K_LEFT] and ai_set.grid[player.grid_x -1, player.grid_y]['chest'] == 'Chest':
-        chest = ai_set.chests[ai_set.grid[player.grid_x -1, player.grid_y]['chest_index']]
-        chest.open = True
-        
+
+    try:
+    ###  Left  ###
+        if key[pygame.K_SPACE] and ai_set.grid[player.grid_x -1, player.grid_y]['chest'] == 'Chest':
+            chest = ai_set.chests[ai_set.grid[player.grid_x -1, player.grid_y]['chest_index']]
+            chest.open = True
+            pygame.mixer.music.play(0, 0, 1)
+            
+        elif key[pygame.K_q] and ai_set.grid[player.grid_x -1, player.grid_y]['chest'] == 'Chest':
+            chest = ai_set.chests[ai_set.grid[player.grid_x -1, player.grid_y]['chest_index']]
+            chest.open = False
+    
+    ###  Right  ###
+        if key[pygame.K_SPACE] and ai_set.grid[player.grid_x +1, player.grid_y]['chest'] == 'Chest':
+            chest = ai_set.chests[ai_set.grid[player.grid_x +1, player.grid_y]['chest_index']]
+            chest.open = True
+            pygame.mixer.music.play(0, 0, 1)
+            
+        elif key[pygame.K_q] and ai_set.grid[player.grid_x +1, player.grid_y]['chest'] == 'Chest':
+            chest = ai_set.chests[ai_set.grid[player.grid_x +1, player.grid_y]['chest_index']]
+            chest.open = False
+                
+    ### Up ###
+        if key[pygame.K_SPACE] and ai_set.grid[player.grid_x, player.grid_y-1]['chest'] == 'Chest':
+            chest = ai_set.chests[ai_set.grid[player.grid_x, player.grid_y-1]['chest_index']]
+            chest.open = True
+            pygame.mixer.music.play(0, 0, 1)
+            
+        elif key[pygame.K_q] and ai_set.grid[player.grid_x, player.grid_y-1]['chest'] == 'Chest':
+            chest = ai_set.chests[ai_set.grid[player.grid_x, player.grid_y-1]['chest_index']]
+            chest.open = False
+            
+    except:
+        print('Nope')
+
         
         
 def check_external_events(ai_set, player, map_1):
