@@ -23,7 +23,7 @@ def parse_csv(ai_set, csv_filename):
     return number_value
 
         ###########  Get Map Tiles  ###############
-def get_tiles(screen, ai_set, filename, rows, columns):
+def get_world_tiles(screen, ai_set, filename, rows, columns):
     sheet = pygame.image.load(filename)
     rect = sheet.get_rect()
     screen_rect = screen.get_rect()
@@ -50,21 +50,48 @@ def get_tiles(screen, ai_set, filename, rows, columns):
             else:
                 occupation = 'Not Occupied'
                 
-            if int(ai_set.layer1_tile_values[row][col]) in ai_set.chest_tiles:
+            if int(ai_set.layer1_tile_values[row][col]) in ai_set.door_tiles or int(ai_set.layer2_tile_values[row][col]) in ai_set.door_tiles:
+                door = 'Enter'
+            else:
+                door = 'NO_ENTRY'
                 
+            if int(ai_set.layer1_tile_values[row][col]) in ai_set.chest_tiles:
                 cst = Chest(screen, ai_set, row, col)
                 ai_set.chests.append(cst)
-                
                 chest = 'Chest'
                 chest_index +=1
                 
             else:
                 chest = 'NONE'
             
-            ai_set.grid[col, row] = {'occupation': occupation, 'grid_location':(col, row), 'screen_location':(x,y), 'chest': chest, 'chest_index': chest_index}
+            ai_set.grid[col, row] = {'occupation': occupation, 'grid_location':(col, row), 'screen_location':(x,y), 'chest': chest, 'chest_index': chest_index, 'door': door }
 
     ai_set.map_tiles = tiles
-   ##########################################################
+   
+        ####################  Get House Tiles  #######################
+def get_house_tiles(screen, ai_set, filename, rows, columns):
+
+                   ###################
+    ai_set.layer1_house_tile_values = parse_csv(ai_set, ai_set.csv_filename[2])
+    ai_set.layer2_house_tile_values = parse_csv(ai_set, ai_set.csv_filename[3])
+                  ####################
+    
+    for row in range(rows):
+        for col in range(columns):
+            x = 16 * col
+            y = 16 * row
+            
+            if int(ai_set.layer1_house_tile_values[row][col]) in ai_set.house_occupied_tiles or int(ai_set.layer2_house_tile_values[row][col]) in ai_set.house_occupied_tiles:
+                occupation = 'Occupied'
+            else:
+                occupation = 'Not Occupied'
+                
+            if int(ai_set.layer1_house_tile_values[row][col]) in ai_set.door_tiles or int(ai_set.layer2_house_tile_values[row][col]) in ai_set.door_tiles:
+                door = 'Enter'
+            else:
+                door = 'NO_ENTRY'
+            
+            ai_set.house_grid[col, row] = {'occupation': occupation, 'grid_location':(col, row), 'screen_location':(x,y), 'door': door}
 
 
        ############  Get Player Frames  ################
@@ -84,13 +111,17 @@ def get_frames(screen, ai_set, filename, rows, columns):
             frames.append(sheet.subsurface(rect))
 
     return frames
-##########################################################
+#########  Initiate Data Storage #################################################
 
 def init(screen, ai_set):
     ai_set.object_frames = get_frames(screen, ai_set, ai_set.object_sheet, 20, 33)
-    ai_set.map_tiles = get_tiles(screen, ai_set, ai_set.map_sheet, 100, 100)
     ai_set.player_frames = get_frames(screen, ai_set, ai_set.player_sheet[0], 3, 4) + get_frames(screen, ai_set, ai_set.player_sheet[1], 3, 4)
+    
+    ai_set.map_tiles = get_world_tiles(screen, ai_set, ai_set.map_sheet[0], 100, 100)
+    ai_set.house_tiles = get_house_tiles(screen, ai_set, ai_set.map_sheet[1], 20, 20)
+    
 
+#########  Check Chests  #################################################
 def check_chests(ai_set, player, key):
 
     try:
@@ -126,29 +157,49 @@ def check_chests(ai_set, player, key):
             
     except:
         print('Nope')
-
         
-        
+##########  Check Doors  ################################################
+def check_doors(ai_set, player):
+    try:
+        if ai_set.grid[player.grid_x, player.grid_y -1]['door'] == 'Enter':
+            ai_set.world = False
+            ai_set.house = True
+            print('enter')
+    except:
+        print('im trying')
+ 
+##########  Check External Events  ######################################
 def check_external_events(ai_set, player, map_1):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+    
+    check_doors(ai_set, player)
+    
+    if ai_set.animation_time == 16 and ai_set.world:    
+        check_events(ai_set, player, map_1, ai_set.grid, player.grid_x, player.grid_y)
+    elif ai_set.animation_time == 16 and ai_set.house:
+        check_events(ai_set, player, map_1, ai_set.house_grid, player.house_grid_x, player.house_grid_y)
 
-def check_events(ai_set, player, map_1):
+##########  Check Primary Events  ######################################
+def check_events(ai_set, player, map_1, grid, player_grid_x, player_grid_y):
      for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
     
      key = pygame.key.get_pressed()
+     
                  ### Open Chests ###
      check_chests(ai_set, player, key)
+                 ### Check Doors ###
+
      
                 ###  Moving Left  ###
-     if key[pygame.K_LEFT] and ai_set.grid[player.grid_x -1, player.grid_y]['occupation'] != 'Occupied':             
+     if key[pygame.K_LEFT] and grid[player_grid_x -1, player_grid_y]['occupation'] != 'Occupied':             
          if ai_set.key_hold_time == 7:    
-            player.grid_x -=1
+            player_grid_x -=1
             ai_set.run_animation_left = True
         
          else:
@@ -157,9 +208,9 @@ def check_events(ai_set, player, map_1):
              
 
                ###  Moving Right  ###
-     elif key[pygame.K_RIGHT] and ai_set.grid[player.grid_x +1, player.grid_y]['occupation'] != 'Occupied':
+     elif key[pygame.K_RIGHT] and grid[player_grid_x +1, player_grid_y]['occupation'] != 'Occupied':
          if ai_set.key_hold_time == 7:
-             player.grid_x +=1
+             player_grid_x +=1
              ai_set.run_animation_right = True
              
          else:
@@ -168,9 +219,9 @@ def check_events(ai_set, player, map_1):
 
 
              ###  Moving Down  ###
-     elif key[pygame.K_DOWN] and ai_set.grid[player.grid_x, player.grid_y +1]['occupation'] != 'Occupied':
+     elif key[pygame.K_DOWN] and grid[player_grid_x, player_grid_y +1]['occupation'] != 'Occupied':
          if ai_set.key_hold_time == 7:
-             player.grid_y +=1
+             player_grid_y +=1
              ai_set.run_animation_down = True
              
          else:
@@ -179,25 +230,25 @@ def check_events(ai_set, player, map_1):
 
 
              ###  Moving Up  ###
-     elif key[pygame.K_UP] and ai_set.grid[player.grid_x, player.grid_y -1]['occupation'] != 'Occupied':
+     elif key[pygame.K_UP] and grid[player_grid_x, player_grid_y -1]['occupation'] != 'Occupied':         
          if ai_set.key_hold_time == 7:
-             player.grid_y -=1
+             player_grid_y -=1
              ai_set.run_animation_up = True
          
          else:
              ai_set.key_hold_time += 1
              player.image = ai_set.player_frames[8]
          
-     elif key[pygame.K_LEFT] and ai_set.grid[player.grid_x -1, player.grid_y]['occupation'] == 'Occupied':
+     elif key[pygame.K_LEFT] and grid[player_grid_x -1, player_grid_y]['occupation'] == 'Occupied':
          pygame.mixer.music.play(0, 0, 1)
          player.image = ai_set.player_frames[17]
-     elif key[pygame.K_RIGHT] and ai_set.grid[player.grid_x +1, player.grid_y]['occupation'] == 'Occupied':
+     elif key[pygame.K_RIGHT] and grid[player_grid_x +1, player_grid_y]['occupation'] == 'Occupied':
          pygame.mixer.music.play(0, 0, 1)
          player.image = ai_set.player_frames[4]
-     elif key[pygame.K_DOWN] and ai_set.grid[player.grid_x, player.grid_y +1]['occupation'] == 'Occupied':
+     elif key[pygame.K_DOWN] and grid[player_grid_x, player_grid_y +1]['occupation'] == 'Occupied':
          pygame.mixer.music.play(0, 0, 1)
          player.image = ai_set.player_frames[0]
-     elif key[pygame.K_UP] and ai_set.grid[player.grid_x, player.grid_y -1]['occupation'] == 'Occupied':
+     elif key[pygame.K_UP] and grid[player_grid_x, player_grid_y -1]['occupation'] == 'Occupied':
          pygame.mixer.music.play(0, 0, 1)
          player.image = ai_set.player_frames[8]
          
@@ -210,11 +261,18 @@ def check_events(ai_set, player, map_1):
          ai_set.key_hold_time = 0
      elif not key[pygame.K_UP]:
          ai_set.key_hold_time = 0
+         
+     if ai_set.world:
+         player.grid_x = player_grid_x
+         player.grid_y = player_grid_y
+     elif ai_set.house:
+         player.house_grid_x = player_grid_x
+         player.house_grid_y = player_grid_y
     ##############################################################
 
-def animate(ai_set, player, map_1):           
+def animate(ai_set, player, map):           
      if ai_set.run_animation_left and ai_set.animation_time%1 == 0:
-        map_1.rect.x += 1
+        map.rect.x += 1
         for row in range(100):
             for col in range(100):
                 x,y = ai_set.grid[col,row]['screen_location']
@@ -230,7 +288,7 @@ def animate(ai_set, player, map_1):
         
       
      elif ai_set.run_animation_right and ai_set.animation_time%1 ==0:
-        map_1.rect.x -= 1
+        map.rect.x -= 1
         for row in range(100):
             for col in range(100):
                 x,y = ai_set.grid[col,row]['screen_location']
@@ -246,7 +304,7 @@ def animate(ai_set, player, map_1):
             
             
      elif ai_set.run_animation_down and ai_set.animation_time%1 ==0:
-        map_1.rect.y -= 1
+        map.rect.y -= 1
         for row in range(100):
             for col in range(100):
                 x,y = ai_set.grid[col,row]['screen_location']
@@ -263,7 +321,7 @@ def animate(ai_set, player, map_1):
         
         
      elif ai_set.run_animation_up and ai_set.animation_time%1 ==0:
-        map_1.rect.y += 1
+        map.rect.y += 1
         for row in range(100):
             for col in range(100):
                 x,y = ai_set.grid[col,row]['screen_location']
