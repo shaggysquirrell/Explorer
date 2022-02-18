@@ -15,6 +15,7 @@ class Settings():
         self.key_hold_time = 0
         
         self.grid = {}
+        self.house_grid = {}
         self.map_tiles = ()
         
         self.index_left = 16
@@ -36,13 +37,16 @@ class Settings():
         self.hud_frames = []
         
         self.player_sheet = ('character_right.png', 'character_left.png')
-        self.map_sheet = ('map.png')
+        self.map_sheet = ('map.png', 'house_layer1.png')
+        self.house_sheet = ('house_layer1.png', 'house_layer2.png')
         self.object_sheet = ('o.png')
         
-        self.csv_filename = ('map_new_layer2.csv', 'map_new_layer3.csv')
+        self.csv_filename = ('map_new_layer2.csv', 'map_new_layer3.csv', 'house_layer_2.csv', 'house_layer_3.csv')
         
         self.layer1_tile_values = []
         self.layer2_tile_values = []
+        self.layer1_house_tile_values = []
+        self.layer2_house_tile_values = []
         self.object_tile_values = []
         
         self.player_start_left = 19
@@ -55,7 +59,13 @@ class Settings():
         self.chests = []
         
         self.occupied_tiles = [603,602,2,733,731, 682, 684, 761, 760, 683, 722, 723,151,724,191, 152, 192, 203, 204, 205, 605, 604]
+        self.house_occupied_tiles = [1,2,3]
+        self.door_tiles = [48,88]
+        
         self.chest_tiles = [2]
         
         self.hud_tiles = [462,463,495,496,528,529,530,531,532,561,562]
         self.chest_frames = [0,33,34,66,67,35,36,68,69]#[45, 46, 78, 79]
+        
+        self.world = True
+        self.house = False
