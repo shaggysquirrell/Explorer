@@ -40,15 +40,6 @@ class Player():
         self.grid_y = 0
         self.house_grid_x = 0
         self.house_grid_y = 0
-        
-        self.moving_left = False
-        self.moving_right = False
-        self.moving_up = False
-        self.moving_down = False
-        
-    def check_events(self):
-        if self.moving_left:
-            print('True')
     
     def blitme(self):
         self.screen.blit(self.image, self.rect)
@@ -75,11 +66,12 @@ def main_game():
     while run:
         clock.tick(ai_set.frame_rate)
         gf.check_external_events(ai_set, player, map_1)
-        
+        gf.check_doors(ai_set, player, map_1, map_2)
         screen.fill((0,0,0))
         
         if ai_set.world:
-            gf.init_movement(ai_set, player, map_1)
+            gf.check_events(ai_set, player, map_1, ai_set.grid, player.grid_x, player.grid_y)
+            gf.init_movement(ai_set, player, map_1, ai_set.grid, 100, 100)
             map_1.blitme()
             player.blitme()
             for i in range(len(ai_set.chests)):
@@ -88,10 +80,11 @@ def main_game():
                 ai_set.chests[i].blitme()
         
         elif ai_set.house:
-            gf.init_movement(ai_set, player, map_2)
+            gf.check_events(ai_set, player, map_2, ai_set.house_grid, player.house_grid_x, player.house_grid_y)
+            gf.init_movement(ai_set, player, map_2, ai_set.house_grid, 20, 20)
             map_2.blitme()
             player.blitme()
-    
+
         pygame.display.flip()
         
 main_game()
