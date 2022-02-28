@@ -37,7 +37,7 @@ class Settings():
         self.hud_frames = []
         
         self.player_sheet = ('character_right.png', 'character_left.png')
-        self.map_sheet = ('map.png', 'house_layer1.png')
+        self.map_sheet = ('map.png', 'house.png')
         self.house_sheet = ('house_layer1.png', 'house_layer2.png')
         self.object_sheet = ('o.png')
         
@@ -54,13 +54,13 @@ class Settings():
         self.player_start_down = 0
         self.player_start_up = 8
         
-        self.x = False
+        self.x = 0
         
         self.chests = []
         
         self.occupied_tiles = [603,602,2,733,731, 682, 684, 761, 760, 683, 722, 723,151,724,191, 152, 192, 203, 204, 205, 605, 604]
         self.house_occupied_tiles = [1,2,3]
-        self.door_tiles = [48,88]
+        self.door_tiles = [48,88, 207, 208,167,168]
         
         self.chest_tiles = [2]
         
