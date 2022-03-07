@@ -12,6 +12,7 @@ import sys
 import os
 
 from chest import Chest
+import Data_Manager as dm
 
 def parse_csv(ai_set, csv_filename):
     number_value = []
@@ -159,7 +160,7 @@ def check_chests(ai_set, player, key):
         print('Nope')
         
 ##########  Check Doors  ################################################
-def check_doors(ai_set, player, map_1, map_2):
+def check_doors(ai_set, player, map_1, map_2, soun_obj):
     if ai_set.animation_time == 16:
         try:
             if ai_set.grid[player.grid_x, player.grid_y]['door'] == 'Enter' and ai_set.world and ai_set.animation_time == 16:
@@ -168,6 +169,7 @@ def check_doors(ai_set, player, map_1, map_2):
                 ai_set.set_env = True
                 map_1.rect.y -= 16
                 player.grid_y += 1
+                soun_obj.play()
                 for row in range(20):
                     for col in range(20):
                         x,y = ai_set.grid[col,row]['screen_location']
@@ -181,6 +183,7 @@ def check_doors(ai_set, player, map_1, map_2):
                 ai_set.set_env = True
                 map_2.rect.y += 16
                 player.house_grid_y -= 1
+                soun_obj.play()
                 for row in range(100):
                     for col in range(100):
                         x,y = ai_set.house_grid[col,row]['screen_location']
@@ -191,14 +194,19 @@ def check_doors(ai_set, player, map_1, map_2):
 
  
 ##########  Check External Events  ######################################
-def check_external_events(ai_set, player, map_1):
+def check_external_events(ai_set, player, map_1, map_2):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+        
+    key = pygame.key.get_pressed()
+    if ai_set.animation_time == 16:
+         if key[pygame.K_s]:
+             dm.save_data(ai_set, player, map_1, map_2, 'explorer_data.json')
 
 ##########  Check Primary Events  ######################################
-def check_events(ai_set, player, map_1, grid, player_grid_x, player_grid_y):
+def check_events(ai_set, player, map_1, map_2, grid, player_grid_x, player_grid_y):
      for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -211,6 +219,8 @@ def check_events(ai_set, player, map_1, grid, player_grid_x, player_grid_y):
                  ### Check Doors ###
 
      if ai_set.animation_time == 16:
+#         if key[pygame.K_s]:
+#             dm.save_data(ai_set, player, map_1, map_2, 'explorer_data.json')
                 ###  Moving Left  ###
          if key[pygame.K_LEFT] and grid[player_grid_x -1, player_grid_y]['occupation'] != 'Occupied':             
              if ai_set.key_hold_time == 7: 
@@ -258,28 +268,29 @@ def check_events(ai_set, player, map_1, grid, player_grid_x, player_grid_y):
 
              ###  Moving Up  ###
          elif key[pygame.K_UP] and grid[player_grid_x, player_grid_y -1]['occupation'] != 'Occupied':
-             if ai_set.world:
-                 player.grid_y -=1
-                 ai_set.run_animation_up = True
-             elif ai_set.house:
-                 player.house_grid_y -=1
-                 ai_set.run_animation_up = True
+             if ai_set.key_hold_time == 7:
+                 if ai_set.world:
+                     player.grid_y -=1
+                     ai_set.run_animation_up = True
+                 elif ai_set.house:
+                     player.house_grid_y -=1
+                     ai_set.run_animation_up = True
          
              else:
                  ai_set.key_hold_time += 1
                  player.image = ai_set.player_frames[8]
          
          elif key[pygame.K_LEFT] and grid[player_grid_x -1, player_grid_y]['occupation'] == 'Occupied':
-             pygame.mixer.music.play(0, 0, 1)
+             pygame.mixer.music.play(0, 0, 0)
              player.image = ai_set.player_frames[17]
          elif key[pygame.K_RIGHT] and grid[player_grid_x +1, player_grid_y]['occupation'] == 'Occupied':
-             pygame.mixer.music.play(0, 0, 1)
+             pygame.mixer.music.play(0, 0, 0)
              player.image = ai_set.player_frames[4]
          elif key[pygame.K_DOWN] and grid[player_grid_x, player_grid_y +1]['occupation'] == 'Occupied':
-             pygame.mixer.music.play(0, 0, 1)
+             pygame.mixer.music.play(0, 0, 0)
              player.image = ai_set.player_frames[0]
          elif key[pygame.K_UP] and grid[player_grid_x, player_grid_y -1]['occupation'] == 'Occupied':
-             pygame.mixer.music.play(0, 0, 1)
+             pygame.mixer.music.play(0, 0, 0)
              player.image = ai_set.player_frames[8]
          
          
