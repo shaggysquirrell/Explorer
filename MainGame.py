@@ -66,12 +66,13 @@ def main_game():
     overworld_msc = pygame.mixer.Sound('Opening.ogg')
     overworld_msc.play(-1)
     ######### Data ##########
-    dm.load_data(ai_set, player, map_1, map_2,'explorer_data.json')
-    
+    dm.load_data(ai_set, screen, player, map_1, map_2,'explorer_data.json')
+    dm.load_grid_dictionary(ai_set, screen, 'dictionary_data.json')
+    print(ai_set.grid[0,0])
     run = True
     while run:
         clock.tick(ai_set.frame_rate)
-        gf.check_external_events(ai_set, player, map_1, map_2)
+        gf.check_external_events(ai_set, screen,player, map_1, map_2)
         gf.check_doors(ai_set, player, map_1, map_2, soun_obj)
         screen.fill((0,0,0))
         
