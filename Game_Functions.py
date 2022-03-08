@@ -194,7 +194,7 @@ def check_doors(ai_set, player, map_1, map_2, soun_obj):
 
  
 ##########  Check External Events  ######################################
-def check_external_events(ai_set, player, map_1, map_2):
+def check_external_events(ai_set, screen, player, map_1, map_2):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -204,7 +204,7 @@ def check_external_events(ai_set, player, map_1, map_2):
     if ai_set.animation_time == 16:
          if key[pygame.K_s]:
              dm.save_data(ai_set, player, map_1, map_2, 'explorer_data.json')
-
+             dm.save_grid_dictionary(ai_set, screen, 'dictionary_data.json')
 ##########  Check Primary Events  ######################################
 def check_events(ai_set, player, map_1, map_2, grid, player_grid_x, player_grid_y):
      for event in pygame.event.get():
